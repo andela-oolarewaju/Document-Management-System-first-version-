@@ -1,0 +1,27 @@
+{
+  "name": "documentmanagement",
+  "version": "1.0.0",
+  "description": "First Version",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node documentManagerSpec.js --forceexit --verbose",
+    "start": "node schema.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andela-oolarewaju/Document-Management-System-first-version-.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andela-oolarewaju/Document-Management-System-first-version-/issues"
+  },
+  "homepage": "https://github.com/andela-oolarewaju/Document-Management-System-first-version-#readme",
+  "dependencies": {
+    "express": "^4.13.3",
+    "jasmine-node": "^1.14.5",
+    "pg": "^4.4.2",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^3.11.0"
+  }
+}
