@@ -1,132 +1,227 @@
+// get dependencies
+var Sequelize = require('sequelize');
+//sequelize initialization
+var sequelize = new Sequelize("postgres://andela:andela@localhost:5432/sequelize");
+
 var schema = require('./schema');
 var docManager = require('./documentManager')
 
 describe("Sequelize", function() {
-  beforeEach(function(done){
-  	docManager.DocumentManager.prototype.createUser('ufedo', 'opaluwa', 'Astro');
-	  docManager.DocumentManager.prototype.createUser('emeka', 'ashikodi', 'Principal');
-		docManager.DocumentManager.prototype.createRole('Mascot');
-		docManager.DocumentManager.prototype.createRole('Astro');
-		docManager.DocumentManager.prototype.createRole('Peeps');
-	  docManager.DocumentManager.prototype.createDocument('engineers', 'admin', 'toyin', 'lasma');
-	  docManager.DocumentManager.prototype.createDocument('pastors', 'secretary', 'bisoye', 'atolagbe');
-	  docManager.DocumentManager.prototype.createDocument('trainers', 'secretary', 'daisi', 'omowemo');
-	  docManager.DocumentManager.prototype.createDocument('wimps', 'secretary', 'susan', 'adelokiki');
-    done();
-  });
-  
+
   describe("User", function() {
-		it("should validate that a user created is unique", function (done) {
-	    schema.Model.prototype.User.findAndCountAll({ 
-	    	where : { 
-	    		firstName : 'ufedo'
-	    	}
-	    }).then(function(result) {
-	    	expect(result.count).toBe(1); 
-	    	done();
-	    });
-		});
+    beforeEach(function(done) {
+      docManager.createUser('ufedo', 'opaluwa', 'Astro').then(function() {
+        done();
+      });
+    });
 
-		it("should validate that a new user has a role defined", function (done) {
-			schema.Model.prototype.User.findOne({
-				where: {
-					firstName : 'emeka'
-				}
-			}).then(function(user) {
-				expect(user.RoleTitle).toBeDefined();
-				done();
-			});
-		});
+    afterEach(function(done) {
+      schema.Model.prototype.User.destroy({
+        where: {}
+      }).then(function() {
+        schema.Model.prototype.Role.destroy({
+          where: {}
+        });
+        done();
+      });
+    });
 
-		it("should validate that a new user created has a first and last name", function (done) {
-			schema.Model.prototype.User.findOne({
-				where: {
-					RoleTitle : 'Principal'
-				}
-			}).then(function(user) {
-				expect(user.firstName).not.toBe(null);
-				expect(user.lastName).not.toBe(null);
-				done();
-			});
-		})
-		
-		it("should validate that all users are returned when getAllUsers is called.", function (done) {
-			docManager.DocumentManager.prototype.getAllUsers().then(function(users) {
-				expect(users).toBe(6);
-				done();
-			});
-		})
-	});
+    it("should validate that a user created is unique", function(done) {
+      schema.Model.prototype.User.findAndCountAll({
+        where: {
+          firstName: 'ufedo'
+        }
+      }).then(function(result) {
+        expect(result.count).toBe(1);
+        done();
+      });
+    });
 
-	describe("Role", function() {
-		
-		it("should validate that a role created has a unique title", function (done) {
-	    schema.Model.prototype.Role.findAndCountAll({ 
-	    	where : { 
-	    		title : 'Peeps'
-	    	}
-	    }).then(function(result) {
-	    	expect(result.count).toBe(1);
-	      done();
-	    });
-		});
-	  
-		it("should validate that all roles are returned when getAllRoles is called.", function (done) {
-			docManager.DocumentManager.prototype.getAllRoles().then(function(roles) {
-				expect(roles).toBe(6);
-				done();
-			});
-		})
-	});
+    it("should validate that a new user has a role defined", function(done) {
+      schema.Model.prototype.User.findOne({
+        where: {
+          firstName: 'ufedo'
+        }
+      }).then(function(user) {
+        expect(user.RoleTitle).toBeDefined();
+        done();
+      });
+    });
+
+    it("should validate that a new user created has a first and last name", function(done) {
+      schema.Model.prototype.User.findOne({
+        where: {
+          RoleTitle: 'Astro'
+        }
+      }).then(function(user) {
+        expect(user.firstName).not.toBe(null);
+        expect(user.lastName).not.toBe(null);
+        done();
+      });
+    })
+
+    it("should validate that all users are returned when getAllUsers is called.", function(done) {
+      docManager.createUser('emeka', 'ashikodi', 'Principal').then(function() {
+        docManager.getAllUsers().then(function(users) {
+          expect(users).toBe(2);
+          done();
+        });
+      });
+    });
+  });
+
+  describe("Role", function() {
+    beforeEach(function(done) {
+      docManager.createRole('Mascot').then(function() {
+        done();
+      });
+    });
+
+    afterEach(function(done) {
+      schema.Model.prototype.Role.destroy({
+        where: {}
+      });
+      done();
+    });
+
+    it("should validate that a role created has a unique title", function(done) {
+      schema.Model.prototype.Role.findAndCountAll({
+        where: {
+          title: 'Mascot'
+        }
+      }).then(function(result) {
+        expect(result.count).toBe(1);
+        done();
+      });
+    });
+
+    it("should validate that all roles are returned when getAllRoles is called.", function(done) {
+      docManager.createRole('Astro').then(function() {
+        docManager.createRole('Peeps').then(function() {
+          docManager.getAllRoles().then(function(roles) {
+            expect(roles).toBe(3);
+            done();
+          });
+        });
+      });
+    });
+  });
 
   describe("Document", function() {
-  	it("should have a published date defined", function (done) {
-  		schema.Model.prototype.Document.findOne({
-  			where: {
-  				title: 'engineers'
-  			}
-  		}).then(function(doc) {
-  			expect(doc.createdAt).toBeDefined();
-  			done();
-  		});
-  	});
+    beforeEach(function(done) {
+      docManager.createDocument('engineers', 'admin').then(function() {
+        done();
+      });
 
-  	it("should validate that all documents are returned and are based on limit when getAllDocuments is called.", function (done) {
-			docManager.DocumentManager.prototype.getAllDocuments(2).then(function(documents) {
-				expect(documents[0].title).toBe('trainers');
-				expect(documents[1].title).toBe('pastors');
-				expect(documents.length).toBe(2);
-				done();
-			});
-		});
+    });
 
-		it("should validate that all documents are in descending order when getAllDocuments is called.", function (done) {
-			docManager.DocumentManager.prototype.getAllDocuments(3).then(function(documents) {
-				expect(documents[0].updatedAt > documents[1].updatedAt).toBe(true);
-				expect(documents[1].updatedAt > documents[2].updatedAt).toBe(true);
-				expect(documents[1].updatedAt < documents[2].updatedAt).toBe(false);
-				done();
-			});
-		});
+    afterEach(function(done) {
+      schema.Model.prototype.Document.destroy({
+        where: {}
+      }).then(function() {
+        schema.Model.prototype.Role.destroy({
+          where: {}
+        });
+        done();
+      });
+    });
+
+    it("should have a published date defined", function(done) {
+      schema.Model.prototype.Document.findOne({
+        where: {
+          title: 'engineers'
+        }
+      }).then(function(doc) {
+        expect(doc.publishDate).toBeDefined();
+        done();
+      });
+    });
+
+    it("should validate that all documents are returned and are based on limit when getAllDocuments is called.", function(done) {
+      docManager.createDocument('pastors', 'secretary').then(function() {
+        docManager.createDocument('trainers', 'secretary').then(function() {
+          docManager.getAllDocuments(2).then(function(documents) {
+            expect(documents[0].title).toBe('trainers');
+            expect(documents[1].title).toBe('pastors');
+            expect(documents.length).toBe(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it("should validate that all documents are in descending order when getAllDocuments is called.", function(done) {
+      docManager.createDocument('pastors', 'secretary').then(function() {
+        docManager.createDocument('trainers', 'documentarian').then(function() {
+          docManager.createDocument('wimps', 'secretary').then(function() {
+            docManager.getAllDocuments(3).then(function(documents) {
+              expect(documents[0].updatedAt).toBeGreaterThan(documents[1].updatedAt);
+              expect(documents[2].updatedAt).toBeLessThan(documents[1].updatedAt);
+              expect(documents[0].title).toBe('wimps');
+              expect(documents[1].title).toBe('trainers');
+              expect(documents[2].title).toBe('pastors');
+              expect(documents.length).toBe(3)
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe("Search", function() {
-  	it("should validate that all documents belonging to a role are in descending order by date based on limit when getAllDocumentsByRole is called.", function (done) {
-			docManager.DocumentManager.prototype.getAllDocumentsByRole('secretary', 3).then(function(documents) {
-				expect(documents[0].updatedAt > documents[1].updatedAt).toBe(true);
-				expect(documents[1].updatedAt < documents[2].updatedAt).toBe(false);
-				expect(documents.length).toBe(3);
-				done();
-			});
-		});
+    beforeEach(function(done) {
+      docManager.createDocument('engineers', 'admin').then(function() {
+        done();
+      });
 
-		// it("should validate that all documents are returned in descending order by date based on limit when getAllDocumentsByDate is called.", function (done) {
-		// 	docManager.DocumentManager.prototype.getAllDocumentsByDate('09/10/2015', 3).then(function(documents) {
-		// 		expect(documents[0].createdAt > documents[1].createdAt).toBe(true);
-		// 		expect(documents[1].createdAt < documents[2].createdAt).toBe(false);
-		// 		expect(documents.length).toBe(3);
-		// 		done();
-		// 	});
-		// });
+    });
+
+    afterEach(function(done) {
+      schema.Model.prototype.Document.destroy({
+        where: {}
+      }).then(function() {
+        schema.Model.prototype.Role.destroy({
+          where: {}
+        });
+        done();
+      });
+    });
+
+    it("should validate that all documents belonging to a role are in descending order by date based on limit when getAllDocumentsByRole is called.", function(done) {
+      docManager.createDocument('pastors', 'secretary').then(function() {
+        docManager.createDocument('trainers', 'documentarian').then(function() {
+          docManager.createDocument('wimps', 'secretary').then(function() {
+            docManager.getAllDocumentsByRole('secretary', 2).then(function(documents) {
+              expect(documents[0].updatedAt).toBeGreaterThan(documents[1].updatedAt);
+              expect(documents[0].title).toBe('wimps');
+              expect(documents[1].title).toBe('pastors');
+              expect(documents.length).toBe(2)
+            }).then(function() {
+              docManager.getAllDocumentsByRole('admin', 2).then(function(documents) {
+                expect(documents[0].title).toBe('engineers');
+                expect(documents.length).toBe(1)
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it("should get all documents created on a date based on a limit when getAllDocumentsByDate is called.", function(done) {
+      var currentDate = new Date();
+      currentDate = currentDate.getDay() + "-" + currentDate.getMonth() + "-" + currentDate.getFullYear();
+      docManager.createDocument('trainers', 'documentarian').then(function() {
+        docManager.createDocument('wimps', 'secretary').then(function() {
+          docManager.getAllDocumentsByDate(currentDate, 2).then(function(documents) {
+            expect(documents[0].title).toBe('wimps');
+            expect(documents[1].title).toBe('trainers');
+            expect(documents.length).toBe(2)
+            done();
+          })
+        });
+      });
+    });
   })
 });
