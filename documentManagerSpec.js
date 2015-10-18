@@ -63,7 +63,9 @@ describe("Sequelize", function() {
     it("should validate that all users are returned when getAllUsers is called.", function(done) {
       docManager.createUser('emeka', 'ashikodi', 'Principal').then(function() {
         docManager.getAllUsers().then(function(users) {
-          expect(users).toBe(2);
+          expect(users[0].firstName).toBe('ufedo');
+          expect(users[1].firstName).toBe('emeka');
+          expect(users.length).toEqual(2);
           done();
         });
       });
@@ -99,7 +101,10 @@ describe("Sequelize", function() {
       docManager.createRole('Astro').then(function() {
         docManager.createRole('Peeps').then(function() {
           docManager.getAllRoles().then(function(roles) {
-            expect(roles).toBe(3);
+            expect(roles[0].title).toBe('Mascot');
+            expect(roles[1].title).toBe('Astro');
+            expect(roles[2].title).toBe('Peeps');
+            expect(roles.length).toBe(3);
             done();
           });
         });
@@ -210,8 +215,11 @@ describe("Sequelize", function() {
     });
 
     it("should get all documents created on a date based on a limit when getAllDocumentsByDate is called.", function(done) {
-      var currentDate = new Date();
-      currentDate = currentDate.getDay() + "-" + currentDate.getMonth() + "-" + currentDate.getFullYear();
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+      var currentDate = dd + '-' + mm + '-' + yyyy
       docManager.createDocument('trainers', 'documentarian').then(function() {
         docManager.createDocument('wimps', 'secretary').then(function() {
           docManager.getAllDocumentsByDate(currentDate, 2).then(function(documents) {
