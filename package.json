@@ -2,7 +2,6 @@
   "name": "documentmanagement",
   "version": "1.0.0",
   "description": "First Version",
-  "main": "index.js",
   "scripts": {
     "test": "jasmine-node documentManagerSpec.js --forceexit --verbose",
     "start": ""
@@ -13,6 +12,19 @@
   },
   "author": "",
   "license": "ISC",
+  "preferGlobal": true,
+  "bin" : {
+    "filesearch" : "executables.js",
+    "createUser" : "executables.js",
+    "getAllUsers" : "executables.js",
+    "createRole" : "executables.js",
+    "getAllRoles" : "executables.js",
+    "createDocument" : "executables.js",
+    "getAllDocuments" : "executables.js",
+    "getAllDocumentsByRole" : "executables.js",
+    "getAllDocumentsByDate" : "executables.js",
+    "help!" : "executables.js"
+  },
   "bugs": {
     "url": "https://github.com/andela-oolarewaju/Document-Management-System-first-version-/issues"
   },
