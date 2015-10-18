@@ -19,16 +19,16 @@ module.exports = {
   },
   //get all users
   getAllUsers: function() {
-    var userLength = 0;
+    var allUsers = [];
     return schema.Model.prototype.User.findAll().then(function(users) {
       //iterate through users
       for (var key in users) {
         if (users.hasOwnProperty(key)) {
-          //increment userLength if users has property key
-          ++userLength;
+          //push into allUsers
+          allUsers.push(users[key].dataValues);
         }
       }
-      return userLength;
+      return allUsers;
     });
   },
   //find or create a role
@@ -41,23 +41,27 @@ module.exports = {
   },
   //get all roles
   getAllRoles: function() {
-    var roleLength = 0
+    var allRoles = []
     return schema.Model.prototype.Role.findAll().then(function(roles) {
       //iterate through roles
       for (var key in roles) {
         if (roles.hasOwnProperty(key)) {
-          //increment roleLength if roles has property key
-          ++roleLength;
+          //push into allRoles
+          allRoles.push(roles[key].dataValues);
         }
       }
-      return roleLength;
+      return allRoles;
     });
   },
   //create a document
   createDocument: function(title, roleTitle) {
-    //format date like dd-mm--yy
-    var currentDate = new Date();
-    currentDate = currentDate.getDay() + "-" + currentDate.getMonth() + "-" + currentDate.getFullYear();
+    //format date like dd-mm--yyyy
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1;
+    var yyyy = today.getFullYear();
+    var currentDate = dd + '-' + mm + '-' + yyyy
+
     //find or create then create a document and set publish date to current date
     return schema.Model.prototype.Role.findOrCreate({
       where: {
